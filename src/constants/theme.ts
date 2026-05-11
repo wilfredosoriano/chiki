@@ -5,46 +5,46 @@
 export const Colors = {
   // ── Terra — forest green palette: sage surfaces, deep green text, golden CTA ──
   terra: {
-    // Surfaces — white bg, sage-tinted cards
+    // Surfaces — white bg, deeper green-tinted cards
     background:       '#FFFFFF',  // pure white page bg
-    surface:          '#E4EEE6',  // soft sage — cards, rows, groups
-    surfaceElevated:  '#D6E5D9',  // deeper sage — modals, sheets
+    surface:          '#D6E8D9',  // deeper sage — cards, rows, groups
+    surfaceElevated:  '#C4DACA',  // richer sage — modals, sheets
 
     // Borders — forest-tinted
-    border:           'rgba(12, 59, 46, 0.14)',
-    borderSubtle:     'rgba(12, 59, 46, 0.07)',
+    border:           'rgba(8, 45, 32, 0.16)',
+    borderSubtle:     'rgba(8, 45, 32, 0.08)',
 
     // Primary — golden yellow CTAs (#FFBA00)
     primary:          '#FFBA00',
-    primaryFg:        '#0C3B2E',  // deep forest on golden
+    primaryFg:        '#082D20',  // deep forest on golden
 
-    // Accent — sage green (#6D9773) + burnt orange (#B46617)
-    accent:           '#B46617',  // burnt orange for highlights
+    // Accent — burnt orange
+    accent:           '#B46617',
     accentFg:         '#FFFFFF',
 
-    // Text — deep forest green (#0C3B2E), very readable on light sage
-    textPrimary:      '#0C3B2E',
-    textSecondary:    'rgba(12, 59, 46, 0.62)',
-    textTertiary:     'rgba(12, 59, 46, 0.40)',
+    // Text — deeper forest green, very readable on sage
+    textPrimary:      '#082D20',
+    textSecondary:    'rgba(8, 45, 32, 0.65)',
+    textTertiary:     'rgba(8, 45, 32, 0.42)',
 
     // Semantic
-    income:           '#4A8C43',
+    income:           '#1E6B1A',
     expense:          '#B03020',
     warning:          '#B46617',
-    success:          '#4A8C43',
+    success:          '#1E6B1A',
 
     // ── Backward-compat aliases ──
     primaryLight:     'rgba(255, 186, 0, 0.18)',
     primaryDark:      '#D4A000',
-    incomeLight:      '#D4EDCF',
+    incomeLight:      '#C2DFBD',
     expenseLight:     '#F8DADA',
     warningLight:     '#FAECC8',
-    surfaceSecondary: '#D6E5D9',
-    divider:          'rgba(12, 59, 46, 0.10)',
+    surfaceSecondary: '#C4DACA',
+    divider:          'rgba(8, 45, 32, 0.10)',
     tabBar:           '#FFFFFF',
-    tabBarBorder:     'rgba(12, 59, 46, 0.10)',
-    card:             '#0C3B2E',  // deep forest for hero/featured cards
-    shadow:           '#0C3B2E',
+    tabBarBorder:     'rgba(8, 45, 32, 0.10)',
+    card:             '#082D20',  // deep forest for hero/featured cards
+    shadow:           '#082D20',
     gradientStart:    '#FFBA00',
     gradientEnd:      '#B46617',
   },
