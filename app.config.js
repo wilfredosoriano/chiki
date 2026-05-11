@@ -10,7 +10,7 @@ module.exports = ({ config }) => ({
   splash: {
     image: './assets/images/splash-logo.png',
     resizeMode: 'contain',
-    backgroundColor: '#2E2947',
+    backgroundColor: '#FFFFFF',
   },
   userInterfaceStyle: 'automatic',
   newArchEnabled: true,
@@ -39,6 +39,7 @@ module.exports = ({ config }) => ({
   },
   plugins: [
     'expo-router',
+    'react-native-purchases',
     'expo-font',
     'expo-secure-store',
     'expo-local-authentication',

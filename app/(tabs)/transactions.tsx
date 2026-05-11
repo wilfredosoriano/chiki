@@ -20,6 +20,7 @@ import { getTransactionsByMonth, deleteTransaction, insertTransaction } from '@/
 import { updateAccountBalance } from '@/db/accountQueries';
 import { getAllCategories } from '@/db/categoryQueries';
 import type { Category, Transaction } from '@/types';
+import { TransactionDetailSheet } from '@/components/ui/TransactionDetailSheet';
 
 function formatCurrency(amount: number) {
   return '₱' + amount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -112,6 +113,8 @@ export default function TransactionsScreen() {
   const [monthlyTx, setMonthlyTx]       = useState<Transaction[]>([]);
   const [categories, setCategories]     = useState<Map<string, Category>>(new Map());
   const [undoEntry, setUndoEntry]       = useState<UndoEntry | null>(null);
+  const [selectedTx, setSelectedTx]     = useState<Transaction | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
 
   // timer ref so we can clear on unmount / new deletion
   const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -366,11 +369,14 @@ export default function TransactionsScreen() {
                   const isLast = idx === txs.length - 1;
                   const color = txColor(tx.type);
                   return (
-                    <View
+                    <Pressable
                       key={tx.id}
-                      style={[
+                      onLongPress={() => { setSelectedTx(tx); setDetailVisible(true); }}
+                      delayLongPress={300}
+                      style={({ pressed }) => [
                         styles.txRow,
                         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
+                        pressed && { backgroundColor: colors.surfaceElevated },
                       ]}
                     >
                       {/* Icon circle */}
@@ -394,21 +400,12 @@ export default function TransactionsScreen() {
                         )}
                       </View>
 
-                      {/* Amount + undo (trash) */}
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                        <Text style={{ color, fontSize: 15, fontWeight: '600', letterSpacing: -0.2 }}>
-                          {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
-                          {formatCurrency(tx.amount)}
-                        </Text>
-                        <Pressable
-                          onPress={() => handleDelete(tx)}
-                          hitSlop={8}
-                          style={({ pressed }) => ({ opacity: pressed ? 0.4 : 1 })}
-                        >
-                          <Ionicons name="trash-outline" size={16} color={colors.textTertiary} />
-                        </Pressable>
-                      </View>
-                    </View>
+                      {/* Amount */}
+                      <Text style={{ color, fontSize: 15, fontWeight: '600', letterSpacing: -0.2 }}>
+                        {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
+                        {formatCurrency(tx.amount)}
+                      </Text>
+                    </Pressable>
                   );
                 })}
               </View>
@@ -419,6 +416,16 @@ export default function TransactionsScreen() {
         {/* Bottom breathing room */}
         <View style={{ height: 16 }} />
       </ScrollView>
+
+      {/* ── Transaction detail sheet ── */}
+      <TransactionDetailSheet
+        transaction={selectedTx}
+        visible={detailVisible}
+        onClose={() => setDetailVisible(false)}
+        onDelete={(tx) => { setDetailVisible(false); handleDelete(tx); }}
+        categories={categories}
+        accounts={accounts}
+      />
 
       {/* ── Undo toast ── */}
       {undoEntry && (

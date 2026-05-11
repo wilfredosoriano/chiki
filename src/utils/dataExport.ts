@@ -132,7 +132,7 @@ export async function exportTransactionsCSV(): Promise<void> {
 
 // ─── Backup ───────────────────────────────────────────────────────────────────
 
-export async function createBackup(): Promise<void> {
+export async function createBackup(customName?: string): Promise<void> {
   try {
     const db = await getDatabase();
 
@@ -162,7 +162,11 @@ export async function createBackup(): Promise<void> {
 
     const json = JSON.stringify(backup, null, 2);
     const dateStr = new Date().toISOString().split('T')[0];
-    const fileName = `chiki-backup-${dateStr}.json`;
+    // Use custom name if provided, sanitise it, then append .json
+    const safeName = customName?.trim()
+      ? customName.trim().replace(/[^a-zA-Z0-9._\- ]/g, '').replace(/\s+/g, '-')
+      : `chiki-backup-${dateStr}`;
+    const fileName = safeName.endsWith('.json') ? safeName : `${safeName}.json`;
 
     if (Platform.OS === 'android') {
       // Android: let user pick a folder via SAF

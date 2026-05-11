@@ -2,8 +2,10 @@
  * Settings screen — appearance, security, notifications, subscription, feedback, about.
  * Design: section-based grouped rows, Label-style section headers, no icon backgrounds.
  */
+import { useState } from 'react';
 import {
   View, ScrollView, Pressable, Switch, StyleSheet, Linking, Alert,
+  Modal, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Text } from '@/components/ui/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -35,8 +37,8 @@ import { exportTransactionsCSV, createBackup, restoreBackup } from '@/utils/data
 
 const APP_VERSION    = Constants.expoConfig?.version ?? '1.0.0';
 const FEEDBACK_EMAIL = 'fredsoriano1229@gmail.com';
-const PRIVACY_URL    = 'https://fredsoriano1229-wq.github.io/chiki-legal/privacy.html';
-const TERMS_URL      = 'https://fredsoriano1229-wq.github.io/chiki-legal/terms.html';
+const PRIVACY_URL    = 'https://wilfredosoriano.github.io/chiki-legal/privacy.html';
+const TERMS_URL      = 'https://wilfredosoriano.github.io/chiki-legal/terms.html';
 
 
 // ── Section label ─────────────────────────────────────────────────────────────
@@ -114,6 +116,10 @@ export default function SettingsScreen() {
   const setAccounts     = useAccountStore((s) => s.setAccounts);
   const setTransactions = useTransactionStore((s) => s.setTransactions);
   const insets = useSafeAreaInsets();
+
+  // ── Backup name modal ─────────────────────────────────────────────────────
+  const [showBackupModal, setShowBackupModal] = useState(false);
+  const [backupFileName, setBackupFileName]   = useState('');
 
   async function handleBillRemindersToggle(value: boolean) {
     if (value) {
@@ -416,7 +422,13 @@ export default function SettingsScreen() {
             icon="cloud-upload-outline"
             label="Backup Data"
             sublabel="Save full backup (.json) to your phone"
-            onPress={isPremium ? createBackup : () => router.push('/(modals)/paywall')}
+            onPress={isPremium
+              ? () => {
+                  const dateStr = new Date().toISOString().split('T')[0];
+                  setBackupFileName(`chiki-backup-${dateStr}`);
+                  setShowBackupModal(true);
+                }
+              : () => router.push('/(modals)/paywall')}
             right={!isPremium ? <Ionicons name="lock-closed" size={15} color={colors.textTertiary} /> : undefined}
           />
           <SettingRow
@@ -507,6 +519,81 @@ export default function SettingsScreen() {
 
         <View style={{ height: 24 }} />
       </ScrollView>
+
+      {/* ── Backup filename modal ── */}
+      <Modal
+        visible={showBackupModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowBackupModal(false)}
+      >
+        <KeyboardAvoidingView
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end', paddingHorizontal: 16, paddingBottom: 32 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setShowBackupModal(false)} />
+          <View style={{
+            backgroundColor: colors.surface,
+            borderRadius: radius.xl,
+            padding: 20,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}>
+            <Text style={{ color: colors.textPrimary, fontSize: 16, fontWeight: '700', letterSpacing: -0.3, marginBottom: 4 }}>
+              Name Your Backup
+            </Text>
+            <Text style={{ color: colors.textTertiary, fontSize: 12, marginBottom: 16 }}>
+              A .json extension will be added automatically.
+            </Text>
+            <TextInput
+              value={backupFileName}
+              onChangeText={setBackupFileName}
+              placeholder="e.g. chiki-backup-may-2026"
+              placeholderTextColor={colors.textTertiary}
+              autoFocus
+              autoCapitalize="none"
+              style={{
+                backgroundColor: colors.surfaceElevated,
+                borderWidth: 1,
+                borderColor: colors.border,
+                borderRadius: radius.md,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
+                color: colors.textPrimary,
+                fontSize: 15,
+                marginBottom: 16,
+              }}
+            />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable
+                onPress={() => setShowBackupModal(false)}
+                style={({ pressed }) => ({
+                  flex: 1, paddingVertical: 13, borderRadius: radius.md,
+                  backgroundColor: colors.surfaceElevated, alignItems: 'center' as const,
+                  opacity: pressed ? 0.7 : 1,
+                })}
+              >
+                <Text style={{ color: colors.textSecondary, fontWeight: '600', fontSize: 14 }}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  setShowBackupModal(false);
+                  createBackup(backupFileName);
+                }}
+                style={({ pressed }) => ({
+                  flex: 1, paddingVertical: 13, borderRadius: radius.md,
+                  backgroundColor: '#082D20', alignItems: 'center' as const,
+                  opacity: pressed ? 0.8 : 1,
+                  flexDirection: 'row' as const, justifyContent: 'center' as const, gap: 6,
+                })}
+              >
+                <Ionicons name="cloud-upload-outline" size={16} color="#FFBA00" />
+                <Text style={{ color: '#FFBA00', fontWeight: '700', fontSize: 14 }}>Save Backup</Text>
+              </Pressable>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }

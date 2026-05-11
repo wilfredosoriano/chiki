@@ -279,17 +279,26 @@ export default function AllAccountsScreen() {
         </View>
 
         {/* Net Worth card */}
-        <View style={[cardSurface, { marginHorizontal: H_PAD, marginTop: 20, padding: 20 }]}>
-          <Text style={{ color: colors.textTertiary, fontSize: 11, fontWeight: '500', letterSpacing: 0.5, textTransform: 'uppercase' }}>
+        <View style={{
+          marginHorizontal: H_PAD, marginTop: 20, padding: 20,
+          backgroundColor: '#082D20',
+          borderRadius: radius.xl,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 6 },
+          shadowOpacity: 0.18,
+          shadowRadius: 20,
+          elevation: 8,
+        }}>
+          <Text style={{ color: 'rgba(255,255,255,0.45)', fontSize: 11, fontWeight: '600', letterSpacing: 0.8, textTransform: 'uppercase' }}>
             Total Net Worth
           </Text>
-          <Text style={{ color: colors.textPrimary, fontSize: 34, fontWeight: '700', letterSpacing: -1.2, marginTop: 4 }}>
+          <Text style={{ color: '#FFBA00', fontSize: 34, fontWeight: '700', letterSpacing: -1.2, marginTop: 4 }}>
             {formatCurrency(netWorth)}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 }}>
-            <View style={[styles.pill, { backgroundColor: colors.surfaceElevated }]}>
-              <Ionicons name="card-outline" size={12} color={colors.textSecondary} />
-              <Text style={{ color: colors.textSecondary, fontSize: 12, fontWeight: '500' }}>
+            <View style={[styles.pill, { backgroundColor: 'rgba(255,255,255,0.08)' }]}>
+              <Ionicons name="card-outline" size={12} color="rgba(255,255,255,0.55)" />
+              <Text style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: '500' }}>
                 {accounts.length} account{accounts.length !== 1 ? 's' : ''}
               </Text>
             </View>

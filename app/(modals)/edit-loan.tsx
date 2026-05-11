@@ -18,7 +18,7 @@ import { getDatabase } from '@/db/database';
 import { getLoanById, updateLoan } from '@/db/loanQueries';
 import type { Loan } from '@/types';
 
-const PRESET_COLORS = ['#EF4444', '#F97316', '#F59E0B', '#5F6266', '#8B5CF6', '#EC4899'];
+const PRESET_COLORS = ['#991B1B', '#92400E', '#78350F', '#374151', '#4C1D95', '#881337'];
 const DUE_DAYS = [1, 5, 10, 15, 20, 25, 28];
 
 // ─── Amortization helpers (same as add-loan) ─────────────────────────────────

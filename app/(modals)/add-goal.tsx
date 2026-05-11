@@ -20,7 +20,13 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-const PRESET_COLORS = ['#5F6266', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#3B82F6'];
+const PRESET_COLORS = ['#374151', '#064E3B', '#78350F', '#991B1B', '#881337', '#1E3A5F'];
+
+const PRESET_EMOJIS = [
+  '🌱', '💰', '🏠', '🚗', '✈️', '💻',
+  '📱', '🎓', '💍', '👶', '🏥', '🏋️',
+  '🎮', '🛒', '🎉', '🐷', '⭐', '🎸',
+];
 
 export default function AddGoalScreen() {
   const { colors, typography, spacing, radius } = useTheme();
@@ -31,6 +37,7 @@ export default function AddGoalScreen() {
   const [startingAmount, setStartingAmount] = useState('');
   const [targetDate, setTargetDate] = useState('');
   const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0]);
+  const [selectedEmoji, setSelectedEmoji] = useState(PRESET_EMOJIS[0]);
   const [saving, setSaving] = useState(false);
 
   async function handleSave() {
@@ -56,7 +63,7 @@ export default function AddGoalScreen() {
         currentAmount: parsedStart,
         targetDate: targetDate.trim() || undefined,
         color: selectedColor,
-        icon: 'wallet-outline',
+        icon: selectedEmoji,
         createdAt: now,
         updatedAt: now,
       };
@@ -181,6 +188,36 @@ export default function AddGoalScreen() {
           onChange={(d) => setTargetDate(d ?? '')}
           optional
         />
+
+        {/* Emoji picker */}
+        <View style={{ gap: spacing.sm }}>
+          <Text style={{ color: colors.textSecondary, fontSize: typography.sizes.sm, fontWeight: '600' }}>
+            Icon
+          </Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
+            {PRESET_EMOJIS.map((emoji) => {
+              const selected = emoji === selectedEmoji;
+              return (
+                <TouchableOpacity
+                  key={emoji}
+                  onPress={() => setSelectedEmoji(emoji)}
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: radius.md,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: selected ? '#082D20' : colors.surface,
+                    borderWidth: 1.5,
+                    borderColor: selected ? '#082D20' : colors.border,
+                  }}
+                >
+                  <Text style={{ fontSize: 22 }}>{emoji}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
 
         {/* Color picker */}
         <View style={{ gap: spacing.sm }}>

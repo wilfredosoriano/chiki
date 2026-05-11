@@ -34,9 +34,9 @@ function formatCurrency(amount: number) {
 }
 
 const TYPE_CONFIG: Record<TransactionType, { label: string; color: string; lightColor: string; icon: keyof typeof Ionicons.glyphMap }> = {
-  expense: { label: 'Expense', color: '#EF4444', lightColor: '#FEE2E2', icon: 'arrow-down-circle-outline' },
-  income:  { label: 'Income',  color: '#10B981', lightColor: '#D1FAE5', icon: 'arrow-up-circle-outline' },
-  transfer:{ label: 'Transfer',color: '#5F6266', lightColor: '#EEEEF0', icon: 'swap-horizontal-outline'  },
+  expense: { label: 'Expense', color: '#F5A49A', lightColor: 'rgba(240,100,80,0.18)',  icon: 'arrow-down-circle-outline' },
+  income:  { label: 'Income',  color: '#FFBA00', lightColor: 'rgba(255,186,0,0.15)',   icon: 'arrow-up-circle-outline'   },
+  transfer:{ label: 'Transfer',color: '#A8C5B0', lightColor: 'rgba(168,197,176,0.15)', icon: 'swap-horizontal-outline'   },
 };
 
 export default function AddTransactionScreen() {
@@ -243,8 +243,8 @@ export default function AddTransactionScreen() {
             <TouchableOpacity
               key={type}
               style={[styles.typeCard, {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
+                backgroundColor: '#082D20',
+                borderColor: 'rgba(255,255,255,0.08)',
                 borderRadius: radius.lg,
               }]}
               onPress={() => { setTxType(type); setAmount('0'); }}
@@ -252,10 +252,10 @@ export default function AddTransactionScreen() {
               <View style={[styles.typeIcon, { backgroundColor: cfg.lightColor, borderRadius: radius.md }]}>
                 <Ionicons name={cfg.icon} size={26} color={cfg.color} />
               </View>
-              <Text style={{ flex: 1, color: colors.textPrimary, fontWeight: '700', fontSize: typography.sizes.base }}>
+              <Text style={{ flex: 1, color: '#FFFFFF', fontWeight: '700', fontSize: typography.sizes.base }}>
                 {cfg.label}
               </Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+              <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.30)" />
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -277,7 +277,7 @@ export default function AddTransactionScreen() {
               {/* Type badge */}
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
                 <TouchableOpacity
-                  style={[styles.typeBadge, { backgroundColor: typeConfig.lightColor, borderRadius: radius.full }]}
+                  style={[styles.typeBadge, { backgroundColor: '#082D20', borderRadius: radius.full }]}
                   onPress={() => { setTxType(null); setAmount('0'); }}
                 >
                   <Ionicons name={typeConfig.icon} size={16} color={typeConfig.color} />
@@ -442,14 +442,14 @@ export default function AddTransactionScreen() {
                           key={cat.id}
                           onPress={() => setSelectedCategoryId(cat.id)}
                           style={[styles.categoryChip, {
-                            backgroundColor: selected ? cat.color : colors.surface,
-                            borderColor: selected ? cat.color : colors.border,
+                            backgroundColor: selected ? '#082D20' : colors.surface,
+                            borderColor: selected ? '#082D20' : colors.border,
                             borderRadius: radius.md,
                           }]}
                         >
-                          {selected && <Ionicons name="checkmark-circle" size={13} color="#fff" />}
+                          {selected && <Ionicons name="checkmark-circle" size={13} color="#FFBA00" />}
                           <Text style={{
-                            color: selected ? '#fff' : colors.textPrimary,
+                            color: selected ? '#FFBA00' : colors.textPrimary,
                             fontSize: typography.sizes.sm,
                             fontWeight: selected ? '700' : '500',
                           }}>
@@ -498,15 +498,15 @@ export default function AddTransactionScreen() {
               {/* Save button */}
               <TouchableOpacity
                 style={[styles.saveBtn, {
-                  backgroundColor: saving ? colors.border : typeConfig.color,
+                  backgroundColor: saving ? colors.border : '#082D20',
                   borderRadius: radius.lg,
                   marginTop: spacing.sm,
                 }]}
                 onPress={handleSave}
                 disabled={saving}
               >
-                <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
-                <Text style={{ color: '#fff', fontWeight: '700', fontSize: typography.sizes.base }}>
+                <Ionicons name="checkmark-circle-outline" size={20} color={saving ? colors.textTertiary : '#FFBA00'} />
+                <Text style={{ color: saving ? colors.textTertiary : '#FFBA00', fontWeight: '700', fontSize: typography.sizes.base }}>
                   {saving ? 'Saving...' : `Save ${typeConfig.label}`}
                 </Text>
               </TouchableOpacity>

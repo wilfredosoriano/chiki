@@ -230,11 +230,8 @@ export default function BudgetsScreen() {
                     key={budget.id}
                     style={[styles.budgetRow, !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border }]}
                   >
-                    {/* Icon + name + amounts + delete */}
+                    {/* Name + amounts + delete */}
                     <View style={styles.budgetTop}>
-                      <View style={[styles.catDot, { backgroundColor: (cat?.color ?? colors.accent) + '33', borderRadius: 6 }]}>
-                        <Ionicons name="wallet-outline" size={14} color={cat?.color ?? colors.accent} />
-                      </View>
                       <Text style={{ flex: 1, color: colors.textPrimary, fontSize: 15, fontWeight: '500' }}>
                         {cat?.name ?? budget.categoryId}
                       </Text>
@@ -297,5 +294,4 @@ const styles = StyleSheet.create({
   progressFill: { height: '100%', borderRadius: 9999 },
   budgetRow: { paddingHorizontal: 16, paddingVertical: 14 },
   budgetTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  catDot: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
 });

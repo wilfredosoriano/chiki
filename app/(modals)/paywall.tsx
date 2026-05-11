@@ -1,7 +1,7 @@
 /**
  * Paywall modal — Chiki Premium upsell screen.
  * One-time purchase at ₱199. No subscription plans.
- * TODO: Replace mock subscribe/restore with real in-app purchase when publishing.
+ * Purchases handled by RevenueCat → Google Play Billing / App Store.
  */
 import { View, ScrollView, Pressable, Alert, Image } from 'react-native';
 import { Text } from '@/components/ui/Text';
@@ -91,10 +91,10 @@ export default function PaywallScreen() {
             color: colors.textPrimary, fontSize: 24, fontWeight: '700',
             letterSpacing: -0.6, textAlign: 'center', marginBottom: 8, lineHeight: 30,
           }}>
-            Take full control of{'\n'}your money 🐔
+            Take full control of{'\n'}your money
           </Text>
           <Text style={{ color: colors.textSecondary, fontSize: 14, textAlign: 'center', lineHeight: 21 }}>
-            One payment. No monthly fees.{'\n'}Used by smart savers across the Philippines.
+            One payment. No monthly fees.{'\n'}Built for Filipinos who want full control of their pera.
           </Text>
         </View>
 
@@ -115,10 +115,10 @@ export default function PaywallScreen() {
               <View key={f.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, width: '46%' }}>
                 <View style={{
                   width: 28, height: 28, borderRadius: 8,
-                  backgroundColor: colors.primary + '20',
+                  backgroundColor: colors.accent + '20',
                   alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <Ionicons name={f.icon as any} size={14} color={colors.primary} />
+                  <Ionicons name={f.icon as any} size={14} color={colors.accent} />
                 </View>
                 <Text style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '500', flex: 1 }} numberOfLines={1}>
                   {f.label}
@@ -150,20 +150,20 @@ export default function PaywallScreen() {
                   paddingVertical: 10,
                   paddingHorizontal: isChiki ? 12 : 0,
                   borderRadius: isChiki ? radius.md : 0,
-                  backgroundColor: isChiki ? colors.primary + '18' : 'transparent',
+                  backgroundColor: isChiki ? colors.accent + '18' : 'transparent',
                   marginHorizontal: isChiki ? -12 : 0,
                   borderBottomWidth: i < COMPARISONS.length - 1 && !isChiki ? 1 : 0,
                   borderBottomColor: colors.border,
                 }}
               >
-                <Text style={{ color: isChiki ? colors.primary : colors.textSecondary, fontSize: 13, fontWeight: isChiki ? '700' : '400', flex: 1 }}>
+                <Text style={{ color: isChiki ? colors.accent : colors.textSecondary, fontSize: 13, fontWeight: isChiki ? '700' : '400', flex: 1 }}>
                   {item.label}
                 </Text>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={{ color: isChiki ? colors.primary : colors.textPrimary, fontSize: 13, fontWeight: '700' }}>
+                  <Text style={{ color: isChiki ? colors.accent : colors.textPrimary, fontSize: 13, fontWeight: '700' }}>
                     {item.price}
                   </Text>
-                  <Text style={{ color: isChiki ? colors.primary : colors.textTertiary, fontSize: 11 }}>
+                  <Text style={{ color: isChiki ? colors.accent : colors.textTertiary, fontSize: 11 }}>
                     {item.recur}
                   </Text>
                 </View>
@@ -177,7 +177,7 @@ export default function PaywallScreen() {
           backgroundColor: colors.surface,
           borderRadius: radius.lg,
           borderWidth: 2,
-          borderColor: colors.primary,
+          borderColor: colors.accent,
           padding: 20,
           marginBottom: 16,
           alignItems: 'center',
@@ -226,7 +226,7 @@ export default function PaywallScreen() {
         <Pressable
           onPress={handleBuy}
           style={({ pressed }) => ({
-            backgroundColor: colors.primary,
+            backgroundColor: '#082D20',
             borderRadius: radius.lg,
             paddingVertical: 17,
             alignItems: 'center',
@@ -237,8 +237,8 @@ export default function PaywallScreen() {
             gap: 8,
           })}
         >
-          <Ionicons name="lock-open" size={18} color={colors.primaryFg} />
-          <Text style={{ color: colors.primaryFg, fontWeight: '700', fontSize: 16, letterSpacing: -0.2 }}>
+          <Ionicons name="lock-open" size={18} color="#FFBA00" />
+          <Text style={{ color: '#FFBA00', fontWeight: '700', fontSize: 16, letterSpacing: -0.2 }}>
             Unlock Premium — ₱199
           </Text>
         </Pressable>

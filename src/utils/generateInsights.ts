@@ -96,7 +96,7 @@ export function generateInsights(params: Params): Insight[] {
           icon: 'trending-up',
           title: `Spending ${pctLabel(pct, 'up')} from last month`,
           body: `You've spent ${fmt(totalThisExpense)} so far vs ${fmt(totalLastExpense)} last ${format(lastMonthDate, 'MMMM')}.`,
-          accentColor: '#F87171',
+          accentColor: '#991B1B',
           priority: 1,
         });
       } else {
@@ -105,7 +105,7 @@ export function generateInsights(params: Params): Insight[] {
           icon: 'trending-down',
           title: `Spending ${pctLabel(pct, 'down')} — nice!`,
           body: `${fmt(Math.abs(diff))} less than last ${format(lastMonthDate, 'MMMM')}. You're trending in the right direction.`,
-          accentColor: '#4ADE80',
+          accentColor: '#166534',
           priority: 1,
         });
       }
@@ -129,7 +129,7 @@ export function generateInsights(params: Params): Insight[] {
         icon: 'podium',
         title: `${catName(topCatId, categoryNames)} is eating ${pct}% of your budget`,
         body: `You've spent ${fmt(topAmount)} on ${catName(topCatId, categoryNames)} this month across all transactions.`,
-        accentColor: '#FCD34D',
+        accentColor: '#92400E',
         priority: 2,
       });
     }
@@ -145,7 +145,7 @@ export function generateInsights(params: Params): Insight[] {
         icon: 'wallet',
         title: `You're saving ${rate}% of income`,
         body: `${fmt(saved)} saved out of ${fmt(totalThisIncome)} earned this month.`,
-        accentColor: '#4ADE80',
+        accentColor: '#166534',
         priority: rate >= 20 ? 1 : 3,
       });
     } else if (rate < 0) {
@@ -154,7 +154,7 @@ export function generateInsights(params: Params): Insight[] {
         icon: 'alert-circle',
         title: `Spending exceeds income this month`,
         body: `You've spent ${fmt(Math.abs(saved))} more than you've earned in ${format(now, 'MMMM')}.`,
-        accentColor: '#F87171',
+        accentColor: '#991B1B',
         priority: 1,
       });
     }
@@ -183,7 +183,7 @@ export function generateInsights(params: Params): Insight[] {
           icon: 'warning',
           title: `${catName(budget.categoryId, categoryNames)} may go over budget`,
           body: `At this pace you'll spend ~${fmt(projected)} vs your ${fmt(budget.amount)} budget — ${fmt(overage)} over.`,
-          accentColor: '#FCD34D',
+          accentColor: '#92400E',
           priority: 2,
         });
         break; // show only the worst one
@@ -224,7 +224,7 @@ export function generateInsights(params: Params): Insight[] {
         icon: 'checkmark-circle',
         title: `${catName(bestBudget.categoryId, categoryNames)} budget on track`,
         body: `${fmt(remaining)} still available — you're well within your ${fmt(bestBudget.amount)} limit.`,
-        accentColor: '#4ADE80',
+        accentColor: '#166534',
         priority: 4,
       });
     }
@@ -261,7 +261,7 @@ export function generateInsights(params: Params): Insight[] {
             icon: 'calendar',
             title: `You spend ${fmtPct(pct)} more on weekends`,
             body: `Avg weekend spend: ${fmt(avgWeekend)} vs ${fmt(avgWeekday)} on weekdays.`,
-            accentColor: '#A78BFA',
+            accentColor: '#4C1D95',
             priority: 3,
           });
         } else {
@@ -270,7 +270,7 @@ export function generateInsights(params: Params): Insight[] {
             icon: 'briefcase',
             title: `Weekdays cost ${fmtPct(pct)} more than weekends`,
             body: `Avg weekday spend: ${fmt(avgWeekday)} vs ${fmt(avgWeekend)} on weekends.`,
-            accentColor: '#60A5FA',
+            accentColor: '#1E3A5F',
             priority: 4,
           });
         }
@@ -290,7 +290,7 @@ export function generateInsights(params: Params): Insight[] {
           icon: 'document-text',
           title: `${burdenPct}% of income goes to loans`,
           body: `${fmt(totalMonthlyPayments)}/month across ${activeLoans.length} active loan${activeLoans.length > 1 ? 's' : ''}.`,
-          accentColor: burdenPct >= 40 ? '#F87171' : '#FCD34D',
+          accentColor: burdenPct >= 40 ? '#991B1B' : '#92400E',
           priority: burdenPct >= 40 ? 1 : 3,
         });
       }
@@ -300,7 +300,7 @@ export function generateInsights(params: Params): Insight[] {
         icon: 'document-text',
         title: `${fmt(totalMonthlyPayments)} in loan payments due`,
         body: `${activeLoans.length} active loan${activeLoans.length > 1 ? 's' : ''} this month.`,
-        accentColor: '#FCD34D',
+        accentColor: '#92400E',
         priority: 3,
       });
     }
@@ -322,7 +322,7 @@ export function generateInsights(params: Params): Insight[] {
         icon: 'flag',
         title: `${closest.name} is ${pct}% funded`,
         body: `Just ${fmt(remaining)} more to reach your ${fmt(closest.targetAmount)} goal.`,
-        accentColor: '#4ADE80',
+        accentColor: '#166534',
         priority: 4,
       });
     }
@@ -338,7 +338,7 @@ export function generateInsights(params: Params): Insight[] {
         icon: 'arrow-up-circle',
         title: `Income ${pctLabel(pct, 'up')} vs last month`,
         body: `${fmt(totalThisIncome)} earned so far — ${fmt(diff)} more than ${format(lastMonthDate, 'MMMM')}.`,
-        accentColor: '#4ADE80',
+        accentColor: '#166534',
         priority: 2,
       });
     }
@@ -356,7 +356,7 @@ export function generateInsights(params: Params): Insight[] {
         icon: 'receipt',
         title: `Biggest single transaction: ${fmt(biggest.amount)}`,
         body: `${biggest.note ? `"${biggest.note}"` : catName(biggest.categoryId, categoryNames)} — that one purchase was ${pct}% of this month's expenses.`,
-        accentColor: '#FB923C',
+        accentColor: '#B45309',
         priority: 3,
       });
     }

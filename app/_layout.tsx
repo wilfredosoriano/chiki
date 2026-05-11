@@ -93,15 +93,21 @@ export default function RootLayout() {
         initializeNotifications(),
       ]);
 
+      setBootComplete(true);
+      bootRef.current = true;
+      SplashScreen.hideAsync().catch(() => {});
+
+      const onboardingDone = await secureGet(STORAGE_KEYS.ONBOARDING_COMPLETE);
+      if (!onboardingDone) {
+        setTimeout(() => router.replace('/onboarding'), 100);
+        return; // skip auth lock check for first-timers
+      }
+
       // Navigate to lock screen if the app was locked before this boot
       const { isLocked, isBiometricEnabled } = useAuthStore.getState();
       if (isLocked && isBiometricEnabled) {
         setTimeout(() => router.replace('/(auth)/lock'), 50);
       }
-
-      setBootComplete(true);
-      bootRef.current = true;
-      SplashScreen.hideAsync().catch(() => {});
     }
 
     boot();
@@ -163,6 +169,7 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: colors.background },
           }}
         >
+          <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(modals)" options={{ presentation: 'transparentModal', animation: 'none' }} />

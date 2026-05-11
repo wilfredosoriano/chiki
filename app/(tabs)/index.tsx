@@ -4,7 +4,7 @@
  */
 import { ScrollView, FlatList, View, Pressable, StyleSheet, Dimensions, Animated, Image } from 'react-native';
 import { Text } from '@/components/ui/Text';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
@@ -18,6 +18,8 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { NotificationPanel } from '@/components/NotificationPanel';
 import { format } from '@/utils/dateUtils';
 import { DEFAULT_EXPENSE_CATEGORIES, DEFAULT_INCOME_CATEGORIES } from '@/constants';
+import { TransactionDetailSheet } from '@/components/ui/TransactionDetailSheet';
+import type { Transaction, Category } from '@/types';
 import { getDatabase } from '@/db/database';
 import { getBudgetsByMonth } from '@/db/budgetQueries';
 import { getAllLoans } from '@/db/loanQueries';
@@ -134,12 +136,12 @@ function getNetWorthMood(
 // (TypeScript types Record<string,T> as non-nullable, so obj[missingKey] returns
 //  undefined at runtime but TS won't warn — a plain const avoids the silent failure).
 const CHIKI_MOOD_IMAGE: Record<string, ReturnType<typeof require>> = {
-  '#4ADE80': require('../../assets/images/mood/success.png'),   // positive / on-track
-  '#FCD34D': require('../../assets/images/mood/shock.png'),     // warning / projection
-  '#F87171': require('../../assets/images/mood/sad.png'),       // over budget / bad
-  '#FB923C': require('../../assets/images/mood/spending.png'),  // spending heavy
-  '#A78BFA': require('../../assets/images/mood/thinking.png'),  // weekend pattern
-  '#60A5FA': require('../../assets/images/mood/motivation.png'),// weekday pattern
+  '#166534': require('../../assets/images/mood/success.png'),   // positive / on-track
+  '#92400E': require('../../assets/images/mood/shock.png'),     // warning / projection
+  '#991B1B': require('../../assets/images/mood/sad.png'),       // over budget / bad
+  '#B45309': require('../../assets/images/mood/spending.png'),  // spending heavy
+  '#4C1D95': require('../../assets/images/mood/thinking.png'),  // weekend pattern
+  '#1E3A5F': require('../../assets/images/mood/motivation.png'),// weekday pattern
 };
 const CHIKI_MOOD_DEFAULT = require('../../assets/images/mood/neutral.png');
 
@@ -176,7 +178,17 @@ function ChikiNetWorthMood({ netWorth, netMonthly, transactions, totalLoanBalanc
 }
 
 // Pressable row that scales on press
-function PressableRow({ onPress, children, style }: { onPress: () => void; children: React.ReactNode; style?: object }) {
+function PressableRow({
+  onPress,
+  onLongPress,
+  children,
+  style,
+}: {
+  onPress: () => void;
+  onLongPress?: () => void;
+  children: React.ReactNode;
+  style?: object;
+}) {
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
   function pressIn() {
@@ -192,7 +204,13 @@ function PressableRow({ onPress, children, style }: { onPress: () => void; child
     ]).start();
   }
   return (
-    <Pressable onPress={onPress} onPressIn={pressIn} onPressOut={pressOut}>
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={300}
+      onPressIn={pressIn}
+      onPressOut={pressOut}
+    >
       <Animated.View style={[style, { transform: [{ scale }], opacity }]}>
         {children}
       </Animated.View>
@@ -212,6 +230,16 @@ export default function DashboardScreen() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [totalLoanBalance, setTotalLoanBalance] = useState(0);
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
+
+  const categoryMap = useMemo(() => {
+    const m = new Map<string, Category>();
+    [...DEFAULT_EXPENSE_CATEGORIES, ...DEFAULT_INCOME_CATEGORIES].forEach((c) => {
+      m.set(c.id, c as Category);
+    });
+    return m;
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -282,6 +310,15 @@ export default function DashboardScreen() {
         visible={showNotifications}
         onClose={() => setShowNotifications(false)}
       />
+      <TransactionDetailSheet
+        transaction={selectedTx}
+        visible={detailVisible}
+        onClose={() => setDetailVisible(false)}
+        onDelete={() => setDetailVisible(false)}
+        categories={categoryMap}
+        accounts={accounts}
+      />
+
       <ScrollView
         contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 80 }}
         showsVerticalScrollIndicator={false}
@@ -358,44 +395,92 @@ export default function DashboardScreen() {
         {/* ── Chiki mood message ── */}
         <ChikiNetWorthMood netWorth={netWorth} netMonthly={netMonthly} transactions={transactions} totalLoanBalance={totalLoanBalance} categoryNames={CATEGORY_NAMES} colors={colors} shadow={shadow} isDark={isDark} />
 
-        {/* ── Income / Expense Summary Row ── */}
-        <View style={[styles.summaryRow, {
-          marginHorizontal: 20,
-          marginTop: 20,
-          backgroundColor: colors.surface,
-          borderRadius: radius.lg,
-          borderWidth: 1,
-          borderColor: colors.border,
-          ...(isDark ? {} : shadow.sm),
-        }]}>
-          <View style={styles.summaryItem}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <View style={[styles.summaryDot, { backgroundColor: colors.income + '22' }]}>
-                <Ionicons name="arrow-up" size={10} color={colors.income} />
+        {/* ── Income / Expense Summary Card ── */}
+        {(() => {
+          const savingsRate = thisMonthIncome > 0
+            ? Math.max(0, ((thisMonthIncome - thisMonthExpenses) / thisMonthIncome) * 100)
+            : 0;
+          const isOver = thisMonthExpenses > thisMonthIncome && thisMonthIncome > 0;
+
+          return (
+            <View style={{
+              marginHorizontal: 20,
+              marginTop: 20,
+              backgroundColor: '#082D20',
+              borderRadius: radius.xl,
+              overflow: 'hidden',
+              ...(isDark ? {} : shadow.md),
+            }}>
+              {/* Top label row */}
+              <View style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: 'rgba(255,255,255,0.40)', fontSize: 10, fontWeight: '600', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                  This Month
+                </Text>
+                {thisMonthIncome > 0 && (
+                  <View style={{
+                    flexDirection: 'row', alignItems: 'center', gap: 4,
+                    backgroundColor: isOver ? 'rgba(240,100,80,0.18)' : 'rgba(255,186,0,0.15)',
+                    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 9999,
+                  }}>
+                    <Ionicons
+                      name={isOver ? 'warning-outline' : 'leaf-outline'}
+                      size={10}
+                      color={isOver ? '#F5A49A' : '#FFBA00'}
+                    />
+                    <Text style={{ color: isOver ? '#F5A49A' : '#FFBA00', fontSize: 10, fontWeight: '600' }}>
+                      {isOver ? 'Over budget' : `Saved ${savingsRate.toFixed(0)}%`}
+                    </Text>
+                  </View>
+                )}
               </View>
-              <Text style={{ color: colors.textTertiary, fontSize: 11, fontWeight: '500', letterSpacing: 0.3, textTransform: 'uppercase' }}>
-                Income
-              </Text>
-            </View>
-            <Text style={{ color: colors.income, fontSize: 17, fontWeight: '600', letterSpacing: -0.2 }}>
-              {formatCurrency(thisMonthIncome)}
-            </Text>
-          </View>
-          <View style={{ width: 1, backgroundColor: colors.border }} />
-          <View style={styles.summaryItem}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <View style={[styles.summaryDot, { backgroundColor: colors.expense + '22' }]}>
-                <Ionicons name="arrow-down" size={10} color={colors.expense} />
+
+              {/* Two columns */}
+              <View style={{ flexDirection: 'row', paddingHorizontal: 4, paddingBottom: 4 }}>
+                {/* Income */}
+                <View style={{ flex: 1, padding: 12 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 7 }}>
+                    <View style={{
+                      width: 22, height: 22, borderRadius: 11,
+                      backgroundColor: 'rgba(255,186,0,0.18)',
+                      alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Ionicons name="arrow-up" size={11} color="#FFBA00" />
+                    </View>
+                    <Text style={{ color: 'rgba(255,255,255,0.50)', fontSize: 10, fontWeight: '600', letterSpacing: 0.4, textTransform: 'uppercase' }}>
+                      Income
+                    </Text>
+                  </View>
+                  <Text style={{ color: '#FFBA00', fontSize: 19, fontWeight: '700', letterSpacing: -0.4 }}>
+                    {formatCurrency(thisMonthIncome)}
+                  </Text>
+                </View>
+
+                {/* Divider */}
+                <View style={{ width: 1, backgroundColor: 'rgba(255,255,255,0.08)', marginVertical: 10 }} />
+
+                {/* Expenses */}
+                <View style={{ flex: 1, padding: 12 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 7 }}>
+                    <View style={{
+                      width: 22, height: 22, borderRadius: 11,
+                      backgroundColor: 'rgba(240,100,80,0.18)',
+                      alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Ionicons name="arrow-down" size={11} color="#F5A49A" />
+                    </View>
+                    <Text style={{ color: 'rgba(255,255,255,0.50)', fontSize: 10, fontWeight: '600', letterSpacing: 0.4, textTransform: 'uppercase' }}>
+                      Expenses
+                    </Text>
+                  </View>
+                  <Text style={{ color: '#F5A49A', fontSize: 19, fontWeight: '700', letterSpacing: -0.4 }}>
+                    {formatCurrency(thisMonthExpenses)}
+                  </Text>
+                </View>
               </View>
-              <Text style={{ color: colors.textTertiary, fontSize: 11, fontWeight: '500', letterSpacing: 0.3, textTransform: 'uppercase' }}>
-                Expenses
-              </Text>
+
             </View>
-            <Text style={{ color: colors.expense, fontSize: 17, fontWeight: '600', letterSpacing: -0.2 }}>
-              {formatCurrency(thisMonthExpenses)}
-            </Text>
-          </View>
-        </View>
+          );
+        })()}
 
         {/* ── Quick Actions ── */}
         <View style={[styles.quickActions, { marginHorizontal: 20, marginTop: 24 }]}>
@@ -411,19 +496,21 @@ export default function DashboardScreen() {
               style={({ pressed }) => [
                 styles.quickBtn,
                 {
-                  backgroundColor: colors.surface,
+                  backgroundColor: '#082D20',
                   borderRadius: radius.lg,
-                  borderWidth: 1,
-                  borderColor: colors.border,
                   opacity: pressed ? 0.7 : 1,
-                  ...(isDark ? {} : shadow.sm),
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 10,
+                  elevation: 4,
                 },
               ]}
             >
-              <View style={[styles.quickIconCircle, { backgroundColor: colors.surfaceElevated }]}>
-                <Ionicons name={action.icon} size={20} color={colors.accent} />
+              <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(255,186,0,0.15)' }]}>
+                <Ionicons name={action.icon} size={20} color="#FFBA00" />
               </View>
-              <Text style={{ color: colors.textSecondary, fontSize: 11, fontWeight: '500', marginTop: 6 }}>
+              <Text style={{ color: 'rgba(255,255,255,0.70)', fontSize: 11, fontWeight: '500', marginTop: 6 }}>
                 {action.label}
               </Text>
             </Pressable>
@@ -509,17 +596,17 @@ export default function DashboardScreen() {
               {accounts.length > 0 && (
                 <Pressable
                   onPress={() => router.push('/(modals)/all-accounts')}
-                  style={({ pressed }) => [styles.addChip, { backgroundColor: colors.surfaceElevated, opacity: pressed ? 0.7 : 1 }]}
+                  style={({ pressed }) => [styles.addChip, { backgroundColor: '#082D20', opacity: pressed ? 0.7 : 1 }]}
                 >
-                  <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '500' }}>See all</Text>
+                  <Text style={{ color: '#FFBA00', fontSize: 11, fontWeight: '500' }}>See all</Text>
                 </Pressable>
               )}
               <Pressable
                 onPress={() => router.push('/(modals)/add-account')}
-                style={({ pressed }) => [styles.addChip, { backgroundColor: colors.surfaceElevated, opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [styles.addChip, { backgroundColor: '#082D20', opacity: pressed ? 0.7 : 1 }]}
               >
-                <Ionicons name="add" size={14} color={colors.accent} />
-                <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '500' }}>Add</Text>
+                <Ionicons name="add" size={14} color="#FFBA00" />
+                <Text style={{ color: '#FFBA00', fontSize: 11, fontWeight: '500' }}>Add</Text>
               </Pressable>
             </View>
           </View>
@@ -606,7 +693,12 @@ export default function DashboardScreen() {
                 const isLast = idx === recentTransactions.length - 1;
                 const txColor = t.type === 'income' ? colors.income : t.type === 'expense' ? colors.expense : colors.accent;
                 return (
-                  <PressableRow key={t.id} onPress={() => {}} style={{}}>
+                  <PressableRow
+                    key={t.id}
+                    onPress={() => {}}
+                    onLongPress={() => { setSelectedTx(t); setDetailVisible(true); }}
+                    style={{}}
+                  >
                     <View style={[styles.txRow, !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
                       {/* Category icon circle */}
                       <View style={[styles.txIconCircle, { backgroundColor: colors.surfaceElevated }]}>
@@ -654,9 +746,6 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 9999,
   },
-  summaryRow: { flexDirection: 'row', overflow: 'hidden' },
-  summaryItem: { flex: 1, paddingVertical: 14, paddingHorizontal: 16 },
-  summaryDot: { width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
   quickActions: { flexDirection: 'row', gap: 8 },
   quickBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, paddingHorizontal: 4 },
   quickIconCircle: { width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' },

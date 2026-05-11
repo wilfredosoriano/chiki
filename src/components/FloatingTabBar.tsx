@@ -30,14 +30,11 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   const { colors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
 
-  const pillBg = isDark
-    ? colors.surfaceElevated + 'F5'
-    : colors.surface + 'F8';
+  const pillBg = '#082D20';
+  const pillBorder = 'rgba(255,255,255,0.08)';
 
-  const pillBorder = isDark ? colors.border : colors.border;
-
-  const activeIconColor  = isDark ? colors.textPrimary : '#1A1A1E';
-  const inactiveIconColor = isDark ? '#6B6E72' : '#B0B3B8';
+  const activeIconColor   = '#FFBA00';
+  const inactiveIconColor = 'rgba(255,255,255,0.35)';
 
   function navigate(routeName: string, routeKey: string, focused: boolean) {
     const event = navigation.emit({
@@ -62,15 +59,11 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
           {
             backgroundColor: pillBg,
             borderColor: pillBorder,
-            ...(isDark
-              ? {}
-              : {
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 6 },
-                  shadowOpacity: 0.09,
-                  shadowRadius: 20,
-                  elevation: 10,
-                }),
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.22,
+            shadowRadius: 20,
+            elevation: 10,
           },
         ]}
       >
@@ -93,7 +86,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
                   <View
                     style={[
                       styles.activeHighlight,
-                      { backgroundColor: isDark ? '#FFFFFF10' : '#00000009' },
+                      { backgroundColor: 'rgba(255,186,0,0.12)' },
                     ]}
                   />
                 )}

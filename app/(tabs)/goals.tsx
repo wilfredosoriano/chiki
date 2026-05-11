@@ -286,7 +286,7 @@ export default function GoalsScreen() {
                   {/* Header row */}
                   <View style={styles.goalHeader}>
                     <View style={[styles.goalIcon, { backgroundColor: goal.color + '22', borderRadius: radius.md }]}>
-                      <Ionicons name="wallet-outline" size={18} color={goal.color} />
+                      <Text style={{ fontSize: 20 }}>{goal.icon || '🌱'}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -424,7 +424,7 @@ export default function GoalsScreen() {
                               style={({ pressed }) => [styles.actionBtn, { flex: 2, backgroundColor: selectedAccountId ? goal.color : colors.border, borderRadius: radius.md, opacity: pressed ? 0.8 : 1 }]}
                               onPress={() => handleAddMoney(goal)}
                             >
-                              <Ionicons name="wallet-outline" size={15} color="#fff" />
+                              <Text style={{ fontSize: 15 }}>{goal.icon || '🌱'}</Text>
                               <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>Save Money</Text>
                             </Pressable>
                           </View>
